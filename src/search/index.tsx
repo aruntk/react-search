@@ -10,6 +10,7 @@ interface UserInterface {
 }
 export interface ReactSearchProps {
   users?: UserInterface[]
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 export interface  ReactSearchState {
   value: string
@@ -25,10 +26,13 @@ class ReactSearch extends React.Component<ReactSearchProps, ReactSearchState> {
   constructor(props: ReactSearchProps) {
     super(props)
   }
-  handleInputChange = (e: any) => {
+  handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       value: e.target.value
     })
+    if (this.props.onChange) {
+      this.props.onChange(e)
+    }
   }
   /**
    * get the user card list item
@@ -50,7 +54,6 @@ class ReactSearch extends React.Component<ReactSearchProps, ReactSearchState> {
       return null
       // return users.map(this.getDropdownListItem)
     }
-    // react will ignore undefined, so map can be used
     const filteredUsers = users.filter((user) => {
       const regx = new RegExp(this.state.value, 'i')
       return user.name.match(regx)
@@ -71,9 +74,7 @@ class ReactSearch extends React.Component<ReactSearchProps, ReactSearchState> {
     return (
       <React.Fragment>
         <input type="search" placeholder="Search users by ID, address, name" onChange={this.handleInputChange} />
-        <ul>
-          {this.getDropdown()}
-        </ul>
+        {this.getDropdown()}
       </React.Fragment>
     )
   }

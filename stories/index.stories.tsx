@@ -7,7 +7,7 @@ import Search from '../src/search'
 import users from './users'
 
 storiesOf('Search', module)
-.add('basic usage', () => <Search users={users} />)
+.add('basic usage', () => <Search users={users} onChange={action('changed')} />)
 
 storiesOf('button', module)
 .add('with text', () => <button onClick={action('clicked')}>Hello Button</button>)
