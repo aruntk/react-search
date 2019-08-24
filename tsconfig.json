@@ -3,13 +3,13 @@
     "target": "es5",
     "module": "commonjs",
     "outDir": "./lib",
-    "lib": [
-      "dom",
-      "es7"
-    ],
+    "lib": ["es5", "es6", "es7", "es2017", "dom"],
+    "sourceMap": true,
+    "allowJs": false,
     "jsx": "react",
     "moduleResolution": "node",
-    "rootDir": "src",
+    "rootDirs": ["src", "stories"],
+    "baseUrl": "src",
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -23,6 +23,6 @@
     "strictFunctionTypes": false,
     "declaration": true
   },
-  "include": ["src"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "**/__tests__/*"]
 }
