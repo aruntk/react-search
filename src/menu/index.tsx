@@ -52,10 +52,17 @@ class Menu extends React.Component<MenuProps, MenuState> {
       this.containerDivRef.scrollTop += diff
     } 
   }
-  setSelectedIndex = (index: number) => {
-    this.setState({
+  _setSelectedIndex = (index: number, callback?: Function) =>  {
+     this.setState({
       selectedIndex: index,
-    }, this.scrollActiveItemIntoView)
+     }, () => {
+       if (callback) {
+         callback(index)
+       }
+     })
+  }
+  setSelectedIndex = (index: number) => {
+    this._setSelectedIndex(index, this.scrollActiveItemIntoView)
   }
   moveSelectedIndex = (inc: number) => {
     const incIndex = this.state.selectedIndex + inc
@@ -65,17 +72,35 @@ class Menu extends React.Component<MenuProps, MenuState> {
       this.setSelectedIndex(newIndex)
     }
   }
+  handleMenuItemMouseMove = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+    if (this.state.selectedIndex !== index) {
+      this._setSelectedIndex(index)
+    }
+  }
   /**
    * get a menu list with ref of active item
    */
   renderMenu() {
     const children = nodeToArray(this.props.children)
     const { selectedIndex } = this.state
-    const processedChildren = children.map((child, i) => {
-      if (i === selectedIndex) {
-        return (<div key={i} ref={this.saveActiveElementRef} style={{ background: 'yellow' }}>{child}</div>)
+    const processedChildren = children.map((child, index) => {
+      const menuItemProps = {
+        onMouseMove: (event: React.MouseEvent<HTMLDivElement>) => this.handleMenuItemMouseMove(event, index)
       }
-      return (<div key={i}>{child}</div>)
+
+      if (index === selectedIndex) {
+        return (
+          <div
+            key={index}
+            ref={this.saveActiveElementRef}
+            style={{ background: 'yellow' }}
+            {...menuItemProps}
+          >
+            {child}
+          </div>
+        )
+      }
+      return (<div key={index} {...menuItemProps}>{child}</div>)
     })
     return processedChildren
   }

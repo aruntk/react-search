@@ -47,6 +47,10 @@ class ReactSearch extends React.Component<ReactSearchProps, ReactSearchState> {
     this.setState({
       value: event.target.value
     })
+    if (this.menuRef) {
+      // reset selected index of menu 
+      this.menuRef.setSelectedIndex(0)
+    }
     if (this.props.onChange) {
       this.props.onChange(event)
     }
