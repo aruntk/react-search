@@ -45,8 +45,8 @@ class Search extends React.Component<SearchProps, SearchState> {
   _debouncedMoveMenuSelectedIndex: Function
   constructor(props: SearchProps) {
     super(props)
-    this._handleInputChange = debounce(this._handleInputChange.bind(this), 500)
-    this._debouncedMoveMenuSelectedIndex = debounce(this.moveMenuSelectedIndex, 20)
+    this._handleInputChange = debounce(this._handleInputChange.bind(this), 100)
+    this._debouncedMoveMenuSelectedIndex = debounce(this.moveMenuSelectedIndex, 100)
   }
   /**
    * debounced method to set search value
