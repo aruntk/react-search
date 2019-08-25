@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { HoverHighlight } from '../highlight'
 
 interface MenuProps {
   style?: React.CSSProperties
@@ -93,10 +94,9 @@ class Menu extends React.Component<MenuProps, MenuState> {
           <div
             key={index}
             ref={this.saveActiveElementRef}
-            style={{ background: 'yellow' }}
             {...menuItemProps}
           >
-            {child}
+            <HoverHighlight>{child}</HoverHighlight>
           </div>
         )
       }
