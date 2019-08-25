@@ -24,6 +24,7 @@ export interface SearchProps {
 export interface  SearchState {
   value: string
   menuOpen: boolean
+  menuSelectedIndex: number
 }
 
 const moveIndexMap = {
@@ -36,29 +37,23 @@ const defaultWidth = 200
  * React Search Element
  */
 class Search extends React.Component<SearchProps, SearchState> {
-  menuRef?: Menu
   state = {
     value: '',
-    menuOpen: false
+    menuOpen: false,
+    menuSelectedIndex: 0
   }
   constructor(props: SearchProps) {
     super(props)
     this._handleInputChange = debounce(this._handleInputChange.bind(this), 500)
-  }
-  saveMenuRef = (ref: Menu) => {
-    this.menuRef = ref
   }
   /**
    * debounced method to set search value
    */
   _handleInputChange(value: string) {
     this.setState({
-      value
+      value,
+      menuSelectedIndex: 0
     })
-    if (this.menuRef) {
-      // reset selected index of menu 
-      this.menuRef.setSelectedIndex(0)
-    }
   }
   handleInputChange: ChangeEventHandler = (event) => {
     this._handleInputChange(event.target.value)
@@ -106,6 +101,53 @@ class Search extends React.Component<SearchProps, SearchState> {
     )
   }
   /**
+   * get the total number of users matched with search value
+   */
+  matchCount() {
+    const { users = [] } = this.props
+    const filteredUsers = users.filter((user) => {
+      // join all searchable fields together
+      const searchStr = Object.values(user).map((v) => {
+        return typeof v === 'string' ? v : v.join('\n')
+        // joining with new line char as new line char will never be entered by user
+      }).join('\n')
+      return searchStr.toLowerCase().indexOf(this.state.value.toLowerCase()) > -1
+    })
+    return filteredUsers.length
+  }
+  handleMenuSelectionChange = (selectedIndex: number) => {
+    this.setState({
+      menuSelectedIndex: selectedIndex,
+    })
+  }
+  propagateKeyboardEvent = (event: React.KeyboardEvent<HTMLInputElement>, fn?: KeyBoardEventHandler) => {
+    if (fn)  {
+      fn(event)
+    }
+  }
+  moveMenuSelectedIndex = (inc: number) => {
+    const incIndex = this.state.menuSelectedIndex + inc
+    const max = this.matchCount()
+    const newIndex = incIndex < 0 || incIndex >= max ? this.state.menuSelectedIndex : incIndex
+    if (newIndex !== this.state.menuSelectedIndex) {
+      this.setState({
+        menuSelectedIndex: newIndex,
+      })
+    }
+  }
+
+  handleKeyDown: KeyBoardEventHandler = (event) => {
+    if (moveIndexMap[event.keyCode]) {
+      event.preventDefault()
+      this.moveMenuSelectedIndex(moveIndexMap[event.keyCode])
+    }
+    this.propagateKeyboardEvent(event, this.props.onKeyDown)
+  }
+  getWidthInPx = () => {
+    const { width = defaultWidth } = this.props
+    return `${width}px`
+  }
+  /**
    * get a filtered list of users based on the search term
    */
   renderMenu() {
@@ -126,7 +168,11 @@ class Search extends React.Component<SearchProps, SearchState> {
     }).filter(u => u)
     if (filteredUsers.length) {
       return (
-        <Menu ref={this.saveMenuRef} style={{ width: this.getWidthInPx(), maxHeight: `${menuMaxHeight}px`, overflow: 'auto' }} >
+        <Menu
+          selectedIndex={this.state.menuSelectedIndex}
+          style={{ width: this.getWidthInPx(), maxHeight: `${menuMaxHeight}px`, overflow: 'auto' }}
+          onSelectionChange={this.handleMenuSelectionChange}
+        >
           {filteredUsers}
         </Menu>
       ) 
@@ -135,22 +181,7 @@ class Search extends React.Component<SearchProps, SearchState> {
       <div>No Users Found</div>
     )
   }
-  propagateKeyboardEvent = (event: React.KeyboardEvent<HTMLInputElement>, fn?: KeyBoardEventHandler) => {
-    if (fn)  {
-      fn(event)
-    }
-  }
-  handleKeyDown: KeyBoardEventHandler = (event) => {
-    if (moveIndexMap[event.keyCode] && this.menuRef && this.menuRef.setSelectedIndex) {
-      event.preventDefault()
-      this.menuRef.moveSelectedIndex(moveIndexMap[event.keyCode])
-    }
-    this.propagateKeyboardEvent(event, this.props.onKeyDown)
-  }
-  getWidthInPx = () => {
-    const { width = defaultWidth } = this.props
-    return `${width}px`
-  }
+
   // tslint:disable-next-line:completed-docs
   render() {
     return (

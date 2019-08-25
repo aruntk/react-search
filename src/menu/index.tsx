@@ -3,6 +3,8 @@ import { HoverHighlight } from '../highlight'
 
 interface MenuProps {
   style?: React.CSSProperties
+  selectedIndex?: number
+  onSelectionChange?: (index: number) => void
 }
 
 interface MenuState {
@@ -26,8 +28,20 @@ function nodeToArray(children: React.ReactNode) {
 class Menu extends React.Component<MenuProps, MenuState> {
   activeItemRef?: HTMLDivElement
   containerDivRef?: HTMLDivElement
-  state = {
-    selectedIndex: 0
+  constructor(props: MenuProps) {
+    super(props)
+    this.state = {
+      selectedIndex: props.selectedIndex || 0
+    }
+
+  }
+  /**
+   * set selectedIndex state from props
+   */
+  componentWillReceiveProps(nextProps: MenuProps) {
+    if (typeof nextProps.selectedIndex === 'number' && nextProps.selectedIndex !== this.state.selectedIndex) {
+      this.setSelectedIndex(nextProps.selectedIndex)
+    }
   }
   saveActiveElementRef = (ref: HTMLDivElement) => {
     this.activeItemRef = ref
@@ -75,7 +89,7 @@ class Menu extends React.Component<MenuProps, MenuState> {
   }
   handleMenuItemMouseMove = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
     if (this.state.selectedIndex !== index) {
-      this._setSelectedIndex(index)
+      this._setSelectedIndex(index, this.props.onSelectionChange)
     }
   }
   /**
