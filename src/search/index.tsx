@@ -23,6 +23,7 @@ export interface SearchProps {
 }
 export interface  SearchState {
   value: string
+  menuOpen: boolean
 }
 
 const moveIndexMap = {
@@ -37,7 +38,8 @@ const defaultWidth = 200
 class Search extends React.Component<SearchProps, SearchState> {
   menuRef?: Menu
   state = {
-    value: ''
+    value: '',
+    menuOpen: false
   }
   constructor(props: SearchProps) {
     super(props)
@@ -63,7 +65,17 @@ class Search extends React.Component<SearchProps, SearchState> {
     if (this.props.onChange) {
       this.props.onChange(event)
     }
+  }
+  handleInputFocus = () => {
+    this.setState({
+      menuOpen: true
+    }) 
+  }
 
+  handleInputBlur = () => {
+    this.setState({
+      menuOpen: false
+    }) 
   }
   /**
    * split the given text using search value and return array of elements
@@ -82,7 +94,7 @@ class Search extends React.Component<SearchProps, SearchState> {
   /**
    * get the user card list item
    */
-  getDropdownListItem(user: UserInterface) {
+  renderMenuItem(user: UserInterface) {
     const { value } = this.state
     return (
       <div key={user.id} style={{ borderBottom: '1px solid #aaa' }}>
@@ -96,11 +108,11 @@ class Search extends React.Component<SearchProps, SearchState> {
   /**
    * get a filtered list of users based on the search term
    */
-  getDropdown() {
+  renderMenu() {
     const { users = [], menuMaxHeight = 200 } = this.props
-    if (!this.state.value) {
+    if (!this.state.value || !this.state.menuOpen) {
       return null
-      // return users.map(this.getDropdownListItem)
+      // return users.map(this.renderMenuItem)
     }
     const filteredUsers = users.map((user) => {
       // join all searchable fields together
@@ -109,7 +121,7 @@ class Search extends React.Component<SearchProps, SearchState> {
         // joining with new line char as new line char will never be entered by user
       }).join('\n')
       if (searchStr.toLowerCase().indexOf(this.state.value.toLowerCase()) > -1) {
-        return this.getDropdownListItem(user)
+        return this.renderMenuItem(user)
       }
     }).filter(u => u)
     if (filteredUsers.length) {
@@ -149,8 +161,10 @@ class Search extends React.Component<SearchProps, SearchState> {
           placeholder="Search users by ID, address, name"
           onChange={this.handleInputChange}
           onKeyDown={this.handleKeyDown}
+          onBlur={this.handleInputBlur}
+          onFocus={this.handleInputFocus}
         />
-        {this.getDropdown()}
+        {this.renderMenu()}
       </React.Fragment>
     )
   }
