@@ -42,9 +42,11 @@ class Search extends React.Component<SearchProps, SearchState> {
     menuOpen: false,
     menuSelectedIndex: 0
   }
+  _debouncedMoveMenuSelectedIndex: Function
   constructor(props: SearchProps) {
     super(props)
     this._handleInputChange = debounce(this._handleInputChange.bind(this), 500)
+    this._debouncedMoveMenuSelectedIndex = debounce(this.moveMenuSelectedIndex, 20)
   }
   /**
    * debounced method to set search value
@@ -139,9 +141,8 @@ class Search extends React.Component<SearchProps, SearchState> {
   handleKeyDown: KeyBoardEventHandler = (event) => {
     if (moveIndexMap[event.keyCode]) {
       event.preventDefault()
-      this.moveMenuSelectedIndex(moveIndexMap[event.keyCode])
+      this._debouncedMoveMenuSelectedIndex(moveIndexMap[event.keyCode])
     }
-    this.propagateKeyboardEvent(event, this.props.onKeyDown)
   }
   getWidthInPx = () => {
     const { width = defaultWidth } = this.props

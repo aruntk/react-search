@@ -9,7 +9,7 @@ import Menu from '../src/menu'
 import users from './users'
 
 storiesOf('Search', module)
-.add('basic usage', () => <Search users={users} onChange={action('changed')} onKeyDown={action('keydown')} />)
+.add('basic usage', () => <Search users={users} onChange={action('changed')} />)
 
 storiesOf('Menu', module)
 .add('basic usage', () => <Menu><div>Hi</div></Menu>)
